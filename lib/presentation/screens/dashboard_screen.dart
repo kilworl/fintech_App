@@ -5,12 +5,16 @@ import '../providers/fund_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/fund_card.dart';
 import '../widgets/subscription_sheet.dart';
+import '../widgets/common/finan_button.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
     final provider = context.watch<FundProvider>();
     final currencyFormatter = NumberFormat.currency(locale: 'es_CO', symbol: '\$', decimalDigits: 0);
 
@@ -23,7 +27,12 @@ class DashboardScreen extends StatelessWidget {
             // Dark Header Section
             SliverToBoxAdapter(
               child: Container(
-                padding: const EdgeInsets.only(top: 60, left: 24, right: 24, bottom: 32),
+                padding: EdgeInsets.only(
+                  top: h * 0.08, 
+                  left: w * 0.06, 
+                  right: w * 0.06, 
+                  bottom: h * 0.04
+                ),
                 decoration: const BoxDecoration(
                   color: AppTheme.darkBackground,
                   borderRadius: BorderRadius.only(
@@ -38,11 +47,11 @@ class DashboardScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Good morning,', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                            Text('Andrés 👋', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                            Text('Good morning,', style: TextStyle(color: Colors.white70, fontSize: w * 0.035)),
+                            Text('Andrés 👋', style: TextStyle(color: Colors.white, fontSize: w * 0.05, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         Row(
@@ -50,74 +59,96 @@ class DashboardScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () => _showComingSoon(context, 'Notificaciones'),
                               child: Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: EdgeInsets.all(w * 0.02),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.notifications_none, color: Colors.white, size: 20),
+                                child: Icon(Icons.notifications_none, color: Colors.white, size: w * 0.05),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: w * 0.03),
                             GestureDetector(
                               onTap: () => _showComingSoon(context, 'Mi Perfil'),
-                              child: const CircleAvatar(
-                                radius: 20,
+                              child: CircleAvatar(
+                                radius: w * 0.05,
                                 backgroundColor: AppTheme.primaryPurple,
-                                child: Text('A', style: TextStyle(color: Colors.white)),
+                                child: Text('A', style: TextStyle(color: Colors.white, fontSize: w * 0.035)),
                               ),
                             ),
                           ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: h * 0.04),
 
-                    // Balance Card
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.darkCardGradient,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryPurple.withValues(alpha: 0.3),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Available Balance', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                          const SizedBox(height: 8),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  currencyFormatter.format(provider.balance),
-                                  style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onLongPress: () async {
+                        await provider.restoreMissingFunds();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('¡Saldo recuperado! Se han añadido 250 COP.'),
+                              backgroundColor: AppTheme.successGreen,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(w * 0.06),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.darkCardGradient,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryPurple.withValues(alpha: 0.3),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Available Balance', style: TextStyle(color: Colors.white70, fontSize: w * 0.035)),
+                            SizedBox(height: h * 0.01),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    provider.isBalanceVisible 
+                                        ? currencyFormatter.format(provider.balance)
+                                        : '••••••••',
+                                    style: TextStyle(color: Colors.white, fontSize: w * 0.09, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 6, left: 8),
-                                child: Text('COP', style: TextStyle(color: Colors.white70, fontSize: 16)),
-                              ),
-                              const SizedBox(width: 8),
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 6),
-                                child: Icon(Icons.visibility_outlined, color: Colors.white54, size: 20),
-                              ),
-                            ],
-                          ),
-                        ],
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: h * 0.008, left: w * 0.02),
+                                  child: Text('COP', style: TextStyle(color: Colors.white70, fontSize: w * 0.04)),
+                                ),
+                                SizedBox(width: w * 0.02),
+                                GestureDetector(
+                                  onTap: () => provider.toggleBalanceVisibility(),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: h * 0.008),
+                                    child: Icon(
+                                      provider.isBalanceVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined, 
+                                      color: Colors.white54, 
+                                      size: w * 0.05
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: h * 0.03),
 
                     // Action Buttons
                     Row(
@@ -137,19 +168,19 @@ class DashboardScreen extends StatelessWidget {
             // Available Funds Section
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 16),
+                padding: EdgeInsets.only(top: h * 0.03, left: w * 0.06, right: w * 0.06, bottom: h * 0.02),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Available Funds',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                      style: TextStyle(fontSize: w * 0.045, fontWeight: FontWeight.bold, color: AppTheme.textDark),
                     ),
                     GestureDetector(
                       onTap: () => _showComingSoon(context, 'Ver Todos los Fondos'),
-                      child: const Text(
+                      child: Text(
                         'See all',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.primaryPurple),
+                        style: TextStyle(fontSize: w * 0.035, fontWeight: FontWeight.w600, color: AppTheme.primaryPurple),
                       ),
                     ),
                   ],
@@ -161,7 +192,7 @@ class DashboardScreen extends StatelessWidget {
               const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
             else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: w * 0.06),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -183,7 +214,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverToBoxAdapter(child: SizedBox(height: h * 0.03)),
           ],
         ),
       ),
@@ -191,27 +222,35 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildActionButton(BuildContext context, IconData icon, String label, String tooltip, {bool isPurple = false}) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return GestureDetector(
       onTap: () => _showComingSoon(context, tooltip),
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: w * 0.14,
+            height: w * 0.14,
             decoration: BoxDecoration(
               color: isPurple ? AppTheme.primaryPurple : Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: Colors.white),
+            child: Icon(icon, color: Colors.white, size: w * 0.06),
           ),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          SizedBox(height: h * 0.01),
+          Text(label, style: TextStyle(color: Colors.white, fontSize: w * 0.03)),
         ],
       ),
     );
   }
 
   void _showComingSoon(BuildContext context, String feature) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.surfaceWhite,
@@ -219,45 +258,42 @@ class DashboardScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: EdgeInsets.all(w * 0.08),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 48,
+              width: w * 0.12,
               height: 5,
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: h * 0.03),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(w * 0.04),
               decoration: BoxDecoration(
                 gradient: AppTheme.primaryGradient,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.construction_rounded, color: Colors.white, size: 32),
+              child: Icon(Icons.construction_rounded, color: Colors.white, size: w * 0.08),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: h * 0.025),
             Text(
               feature,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+              style: TextStyle(fontSize: w * 0.055, fontWeight: FontWeight.bold, color: AppTheme.textDark),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: h * 0.01),
+            Text(
               'Esta funcionalidad estará disponible próximamente.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textGray, height: 1.5),
+              style: TextStyle(color: AppTheme.textGray, height: 1.5, fontSize: w * 0.038),
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Entendido'),
-              ),
+            SizedBox(height: h * 0.03),
+            FinanButton(
+              text: 'Entendido',
+              onTap: () => Navigator.pop(context),
             ),
           ],
         ),

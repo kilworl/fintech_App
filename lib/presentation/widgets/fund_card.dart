@@ -19,10 +19,13 @@ class FundCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
     final currencyFormatter = NumberFormat.currency(locale: 'es_CO', symbol: '\$', decimalDigits: 0);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: h * 0.015),
       decoration: BoxDecoration(
         color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(16),
@@ -40,24 +43,24 @@ class FundCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(w * 0.04),
             child: Row(
               children: [
                 // Icon Box
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: w * 0.12,
+                  height: w * 0.12,
                   decoration: BoxDecoration(
                     color: AppTheme.primaryPurpleLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.insights,
                     color: AppTheme.primaryPurple,
-                    size: 24,
+                    size: w * 0.06,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: w * 0.04),
                 
                 // Content
                 Expanded(
@@ -69,8 +72,8 @@ class FundCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               fund.name,
-                              style: const TextStyle(
-                                fontSize: 14,
+                              style: TextStyle(
+                                fontSize: w * 0.038,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textDark,
                               ),
@@ -78,7 +81,7 @@ class FundCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: w * 0.02),
                           // FPV/FIC Tag
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -88,33 +91,33 @@ class FundCard extends StatelessWidget {
                             ),
                             child: Text(
                               fund.category,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppTheme.primaryPurple,
-                                fontSize: 10,
+                                fontSize: w * 0.025,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: h * 0.005),
                       Text(
                         customSubtitle ?? 'Min. Amount: ${currencyFormatter.format(fund.minAmount)} COP',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppTheme.textGray,
-                          fontSize: 12,
+                          fontSize: w * 0.032,
                         ),
                       ),
                     ],
                   ),
                 ),
                 
-                const SizedBox(width: 8),
+                SizedBox(width: w * 0.02),
                 // Chevron
-                const Icon(
+                Icon(
                   Icons.chevron_right,
                   color: AppTheme.textGray,
-                  size: 20,
+                  size: w * 0.05,
                 ),
               ],
             ),

@@ -34,6 +34,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Scaffold(
       body: widget.navigationShell,
       bottomNavigationBar: Container(
@@ -49,15 +53,15 @@ class _MainScreenState extends State<MainScreen> {
         ),
         child: SafeArea(
           child: SizedBox(
-            height: 72,
+            height: h * 0.09,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
-                _buildNavItem(1, Icons.pie_chart_outline, Icons.pie_chart, 'Portfolio'),
-                _buildCenterButton(),
-                _buildNavItem(3, Icons.bar_chart_outlined, Icons.bar_chart, 'Market'),
-                _buildNavItem(4, Icons.history_outlined, Icons.history, 'History'),
+                _buildNavItem(context, 0, Icons.home_outlined, Icons.home, 'Home'),
+                _buildNavItem(context, 1, Icons.pie_chart_outline, Icons.pie_chart, 'Portfolio'),
+                _buildCenterButton(context),
+                _buildNavItem(context, 3, Icons.bar_chart_outlined, Icons.bar_chart, 'Market'),
+                _buildNavItem(context, 4, Icons.history_outlined, Icons.history, 'History'),
               ],
             ),
           ),
@@ -66,26 +70,29 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, IconData activeIcon, String label) {
     final isActive = widget.navigationShell.currentIndex == index;
+    final w = MediaQuery.sizeOf(context).width;
+    final h = MediaQuery.sizeOf(context).height;
+
     return GestureDetector(
       onTap: () => _onTap(index),
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 64,
+        width: w * 0.16,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               isActive ? activeIcon : icon,
               color: isActive ? AppTheme.primaryPurple : AppTheme.textGray,
-              size: 24,
+              size: w * 0.06,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: h * 0.005),
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: w * 0.028,
                 color: isActive ? AppTheme.primaryPurple : AppTheme.textGray,
                 fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
               ),
@@ -96,15 +103,18 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildCenterButton() {
+  Widget _buildCenterButton(BuildContext context) {
     const index = 2;
     final isActive = widget.navigationShell.currentIndex == index;
+    final w = MediaQuery.sizeOf(context).width;
+    final h = MediaQuery.sizeOf(context).height;
+
     return GestureDetector(
       onTap: () => _onTap(index),
       child: Container(
-        width: 56,
-        height: 56,
-        margin: const EdgeInsets.only(bottom: 8),
+        width: w * 0.14,
+        height: w * 0.14,
+        margin: EdgeInsets.only(bottom: h * 0.01),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: AppTheme.primaryGradient,
@@ -117,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 26),
+        child: Icon(Icons.auto_awesome, color: Colors.white, size: w * 0.065),
       ),
     );
   }

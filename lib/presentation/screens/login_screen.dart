@@ -66,67 +66,74 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Scaffold(
       body: Stack(
         children: [
           _buildBackground(),
-          _buildGlows(),
+          _buildGlows(context),
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(w * 0.08),
               child: FadeTransition(
                 opacity: _fadeAnim,
                 child: SlideTransition(
                   position: _slideAnim,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 48),
-                      _buildHeader(),
-                      const SizedBox(height: 56),
-                      _buildWelcomeText(),
-                      const SizedBox(height: 40),
-                      FinanTextField(
-                        controller: _emailController,
-                        hint: 'andres@btg.com',
-                        icon: Icons.alternate_email,
-                        label: 'Correo Electrónico',
-                        isDark: true,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 24),
-                      FinanTextField(
-                        controller: _passwordController,
-                        hint: '••••••••',
-                        icon: Icons.lock_outline,
-                        label: 'Contraseña',
-                        isDark: true,
-                        obscure: _obscurePassword,
-                        suffix: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                            color: Colors.white54,
-                            size: 20,
+                  child: SizedBox(
+                    height: h * 0.85, // Ensure it fills enough space to center properly
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildHeader(context),
+                        SizedBox(height: h * 0.05),
+                        _buildWelcomeText(context),
+                        SizedBox(height: h * 0.04),
+                        FinanTextField(
+                          controller: _emailController,
+                          hint: 'andres@btg.com',
+                          icon: Icons.alternate_email,
+                          label: 'Correo Electrónico',
+                          isDark: true,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        SizedBox(height: h * 0.025),
+                        FinanTextField(
+                          controller: _passwordController,
+                          hint: '••••••••',
+                          icon: Icons.lock_outline,
+                          label: 'Contraseña',
+                          isDark: true,
+                          obscure: _obscurePassword,
+                          suffix: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              color: Colors.white54,
+                              size: w * 0.05,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                         ),
-                      ),
-                      _buildForgotPassword(),
-                      if (_error != null) _buildErrorMessage(),
-                      const SizedBox(height: 40),
-                      FinanButton(
-                        text: 'Iniciar Sesión',
-                        onTap: _login,
-                        isLoading: _isLoading,
-                      ),
-                      const SizedBox(height: 32),
-                      const Center(
-                        child: Text(
-                          '¿No tienes cuenta? Regístrate',
-                          style: TextStyle(color: Colors.white54, fontSize: 13),
+                        _buildForgotPassword(context),
+                        if (_error != null) _buildErrorMessage(context),
+                        SizedBox(height: h * 0.04),
+                        FinanButton(
+                          text: 'Iniciar Sesión',
+                          onTap: _login,
+                          isLoading: _isLoading,
                         ),
-                      ),
-                    ],
+                        SizedBox(height: h * 0.04),
+                        Center(
+                          child: Text(
+                            '¿No tienes cuenta? Regístrate',
+                            style: TextStyle(color: Colors.white54, fontSize: w * 0.032),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -150,18 +157,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildGlows() {
+  Widget _buildGlows(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
     return Stack(
       children: [
         Positioned(
-          top: -80,
-          right: -80,
-          child: _glow(300, AppTheme.primaryPurple.withValues(alpha: 0.35)),
+          top: -h * 0.1,
+          right: -w * 0.2,
+          child: _glow(w * 0.8, AppTheme.primaryPurple.withValues(alpha: 0.35)),
         ),
         Positioned(
-          bottom: -60,
-          left: -60,
-          child: _glow(250, AppTheme.primaryPurple.withValues(alpha: 0.2)),
+          bottom: -h * 0.08,
+          left: -w * 0.15,
+          child: _glow(w * 0.65, AppTheme.primaryPurple.withValues(alpha: 0.2)),
         ),
       ],
     );
@@ -178,15 +188,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Center(
       child: Column(
         children: [
           Container(
-            width: 72,
-            height: 72,
+            width: w * 0.18,
+            height: w * 0.18,
             decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -196,62 +209,80 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
               ],
             ),
-            child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 36),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: h * 0.02),
+          Text(
             'FinanTech',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 32,
+              fontSize: w * 0.08,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
             ),
           ),
-          const SizedBox(height: 6),
-          const Text(
+          SizedBox(height: h * 0.008),
+          Text(
             'BTG Pactual · Gestión de Fondos',
-            style: TextStyle(color: Colors.white54, fontSize: 13),
+            style: TextStyle(color: Colors.white54, fontSize: w * 0.032),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildWelcomeText() {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildWelcomeText(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final h = MediaQuery.sizeOf(context).height;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           'Bienvenido de vuelta',
-          style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: w * 0.065, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
-        SizedBox(height: 6),
+        SizedBox(height: h * 0.008),
         Text(
           'Ingresa para gestionar tus fondos',
-          style: TextStyle(color: Colors.white54, fontSize: 15),
+          style: TextStyle(color: Colors.white54, fontSize: w * 0.038),
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
-  Widget _buildForgotPassword() {
+  Widget _buildForgotPassword(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
         onPressed: () {},
         child: Text(
           '¿Olvidaste tu contraseña?',
-          style: TextStyle(color: AppTheme.primaryPurple.withValues(alpha: 0.85)),
+          style: TextStyle(
+            color: AppTheme.primaryPurple.withValues(alpha: 0.85),
+            fontSize: w * 0.032
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildErrorMessage() {
+  Widget _buildErrorMessage(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(top: h * 0.015),
+      padding: EdgeInsets.all(w * 0.03),
       decoration: BoxDecoration(
         color: AppTheme.errorRed.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
@@ -259,9 +290,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppTheme.errorRed, size: 18),
-          const SizedBox(width: 8),
-          Expanded(child: Text(_error!, style: const TextStyle(color: AppTheme.errorRed, fontSize: 13))),
+          Icon(Icons.error_outline, color: AppTheme.errorRed, size: w * 0.045),
+          SizedBox(width: w * 0.02),
+          Expanded(
+            child: Text(
+              _error!, 
+              style: TextStyle(color: AppTheme.errorRed, fontSize: w * 0.032)
+            )
+          ),
         ],
       ),
     );

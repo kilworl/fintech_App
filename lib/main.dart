@@ -23,11 +23,16 @@ class FinanTechApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => di.sl<FundProvider>()),
       ],
-      child: MaterialApp.router(
-        title: 'FinanTech FPV/FIC',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        routerConfig: AppRouter.router, // Navigator 2.0 integration
+      child: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: MaterialApp.router(
+          title: 'FinanTech FPV/FIC',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          routerConfig: AppRouter.router, // Navigator 2.0 integration
+        ),
       ),
     );
   }

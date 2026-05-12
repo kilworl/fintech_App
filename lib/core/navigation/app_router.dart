@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../presentation/screens/splash_screen.dart';
 import '../../presentation/screens/login_screen.dart';
 import '../../presentation/screens/main_screen.dart';
 import '../../presentation/screens/dashboard_screen.dart';
@@ -13,6 +14,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
+  static const String splash = '/';
   static const String login = '/login';
   static const String dashboard = '/dashboard';
   static const String portfolio = '/portfolio';
@@ -21,10 +23,16 @@ class AppRouter {
   static const String history = '/history';
 
   static final router = GoRouter(
-    initialLocation: login,
+    initialLocation: splash,
     navigatorKey: _rootNavigatorKey,
     debugLogDiagnostics: true,
     routes: [
+      // ── Splash ─────────────────────────────────────────────────────────────
+      GoRoute(
+        path: splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+
       // ── Public Routes ──────────────────────────────────────────────────────
       GoRoute(
         path: login,

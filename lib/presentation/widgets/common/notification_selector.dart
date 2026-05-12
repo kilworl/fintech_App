@@ -16,24 +16,32 @@ class NotificationSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Row(
       children: [
-        Expanded(child: _notificationPill('Email', Icons.email_outlined, NotificationMethod.email)),
-        const SizedBox(width: 8),
-        Expanded(child: _notificationPill('SMS', Icons.sms_outlined, NotificationMethod.sms)),
-        const SizedBox(width: 8),
-        Expanded(child: _notificationPill('WSP', Icons.chat_outlined, NotificationMethod.whatsapp)),
+        Expanded(child: _notificationPill(context, 'Email', Icons.email_outlined, NotificationMethod.email)),
+        SizedBox(width: w * 0.02),
+        Expanded(child: _notificationPill(context, 'SMS', Icons.sms_outlined, NotificationMethod.sms)),
+        SizedBox(width: w * 0.02),
+        Expanded(child: _notificationPill(context, 'WSP', Icons.chat_outlined, NotificationMethod.whatsapp)),
       ],
     );
   }
 
-  Widget _notificationPill(String title, IconData icon, NotificationMethod method) {
+  Widget _notificationPill(BuildContext context, String title, IconData icon, NotificationMethod method) {
     final isSelected = selectedMethod == method;
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return GestureDetector(
       onTap: () => onMethodChanged(method),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: h * 0.015),
         decoration: BoxDecoration(
           color: isSelected ? activeColor.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -48,15 +56,18 @@ class NotificationSelector extends StatelessWidget {
             Icon(
               icon,
               color: isSelected ? activeColor : AppTheme.textGray,
-              size: 18,
+              size: w * 0.045,
             ),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? activeColor : AppTheme.textDark,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                fontSize: 13,
+            SizedBox(width: w * 0.02),
+            Flexible(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected ? activeColor : AppTheme.textDark,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  fontSize: w * 0.032,
+                ),
               ),
             ),
           ],

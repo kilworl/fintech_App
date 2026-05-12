@@ -10,18 +10,21 @@ class TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
     final isSubscription = transaction.type == TransactionType.subscribe;
     final currencyFormatter = NumberFormat.currency(locale: 'es_CO', symbol: '\$', decimalDigits: 0);
     final dateFormatter = DateFormat('MMM dd, yyyy • hh:mm a');
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: h * 0.02),
       child: Row(
         children: [
           // Icon
           Container(
-            width: 48,
-            height: 48,
+            width: w * 0.12,
+            height: w * 0.12,
             decoration: BoxDecoration(
               color: isSubscription 
                   ? AppTheme.primaryPurpleLight.withValues(alpha: 0.5)
@@ -31,10 +34,10 @@ class TransactionTile extends StatelessWidget {
             child: Icon(
               isSubscription ? Icons.arrow_downward : Icons.arrow_upward,
               color: isSubscription ? AppTheme.primaryPurple : AppTheme.successGreen,
-              size: 24,
+              size: w * 0.06,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: w * 0.04),
           
           // Details
           Expanded(
@@ -43,27 +46,27 @@ class TransactionTile extends StatelessWidget {
               children: [
                 Text(
                   dateFormatter.format(transaction.date),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppTheme.textGray,
-                    fontSize: 12,
+                    fontSize: w * 0.03,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: h * 0.005),
                 Text(
                   isSubscription ? 'Subscription' : 'Cancellation',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: isSubscription ? AppTheme.primaryPurple : AppTheme.successGreen,
-                    fontSize: 14,
+                    fontSize: w * 0.035,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   transaction.fundName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textDark,
-                    fontSize: 14,
+                    fontSize: w * 0.035,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -71,15 +74,15 @@ class TransactionTile extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: w * 0.02),
           
           // Amount
           Text(
             "${isSubscription ? '-' : '+'}${currencyFormatter.format(transaction.amount)} COP",
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               color: AppTheme.textDark,
-              fontSize: 14,
+              fontSize: w * 0.035,
             ),
           ),
         ],

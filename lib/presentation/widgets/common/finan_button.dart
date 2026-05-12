@@ -8,8 +8,8 @@ class FinanButton extends StatelessWidget {
   final bool isSecondary;
   final Color? color;
   final double? width;
-  final double height;
-
+  final double? height;
+  
   const FinanButton({
     super.key,
     required this.text,
@@ -18,14 +18,21 @@ class FinanButton extends StatelessWidget {
     this.isSecondary = false,
     this.color,
     this.width,
-    this.height = 56,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final h = size.height;
+    final w = size.width;
+    
+    final dynamicHeight = height ?? h * 0.065;
+    final dynamicFontSize = w * 0.04;
+
     return SizedBox(
       width: width ?? double.infinity,
-      height: height,
+      height: dynamicHeight,
       child: GestureDetector(
         onTap: isLoading ? null : onTap,
         child: AnimatedContainer(
@@ -48,16 +55,16 @@ class FinanButton extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: isLoading
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              ? SizedBox(
+                  width: w * 0.06,
+                  height: w * 0.06,
+                  child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                 )
               : Text(
                   text,
                   style: TextStyle(
                     color: isSecondary ? (color == null ? AppTheme.textDark : Colors.white) : Colors.white,
-                    fontSize: 16,
+                    fontSize: dynamicFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

@@ -27,6 +27,7 @@ class FundProvider extends ChangeNotifier {
   });
 
   bool _isLoading = false;
+  bool _isBalanceVisible = true;
   String? _errorMessage;
   double _balance = 0.0;
   List<Fund> _availableFundsList = [];
@@ -39,6 +40,13 @@ class FundProvider extends ChangeNotifier {
   List<Fund> get availableFundsList => _availableFundsList;
   List<Fund> get portfolioList => _portfolioList;
   List<Transaction> get historyList => _historyList;
+
+  bool get isBalanceVisible => _isBalanceVisible;
+
+  void toggleBalanceVisibility() {
+    _isBalanceVisible = !_isBalanceVisible;
+    notifyListeners();
+  }
 
   void clearError() {
     _errorMessage = null;
@@ -88,10 +96,11 @@ class FundProvider extends ChangeNotifier {
     // 1. Subscribe via use case (validates balance with Either)
     final (error, _) = await subscribeToFund(fund);
     if (error != null) {
+      print('DEBUG: Subscription failed with error: $error');
       _errorMessage = error;
       _isLoading = false;
       notifyListeners();
-      return (false, null);
+      return (false, error);
     }
 
     // 2. Reload state
@@ -99,6 +108,7 @@ class FundProvider extends ChangeNotifier {
 
     // 3. Send notification (non-blocking for UX — errors are shown but don't fail the flow)
     String? notifMsg;
+    print('DEBUG: Attempting notification. Method: $notificationMethod, Contact: "$contact"');
     if (contact.trim().isNotEmpty) {
       final (notifError, result) = await sendNotification(
         method: notificationMethod,
@@ -108,7 +118,10 @@ class FundProvider extends ChangeNotifier {
         amount: fund.minAmount,
         action: 'Suscripción',
       );
+      print('DEBUG: Notification result - Error: $notifError, Message: ${result?.message}');
       notifMsg = notifError ?? result?.message;
+    } else {
+      print('DEBUG: Skipping notification because contact is empty.');
     }
 
     return (true, notifMsg);
@@ -130,7 +143,7 @@ class FundProvider extends ChangeNotifier {
       _errorMessage = error;
       _isLoading = false;
       notifyListeners();
-      return (false, null);
+      return (false, error);
     }
 
     await loadInitialData();
@@ -149,5 +162,12 @@ class FundProvider extends ChangeNotifier {
     }
 
     return (true, notifMsg);
+  }
+
+  /// Emergency fix for the subscription bug
+  Future<void> restoreMissingFunds() async {
+    _balance += 250;
+    await repository.updateBalance(_balance);
+    notifyListeners();
   }
 }

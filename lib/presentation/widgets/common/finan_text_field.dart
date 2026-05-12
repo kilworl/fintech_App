@@ -9,6 +9,7 @@ class FinanTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final Widget? suffix;
   final String? label;
+  final String? errorText;
   final bool isDark;
 
   const FinanTextField({
@@ -20,11 +21,16 @@ class FinanTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.suffix,
     this.label,
+    this.errorText,
     this.isDark = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -33,11 +39,11 @@ class FinanTextField extends StatelessWidget {
             label!,
             style: TextStyle(
               color: isDark ? Colors.white70 : AppTheme.textGray,
-              fontSize: 13,
+              fontSize: w * 0.032,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: h * 0.01),
         ],
         Container(
           decoration: BoxDecoration(
@@ -62,21 +68,46 @@ class FinanTextField extends StatelessWidget {
             controller: controller,
             obscureText: obscure,
             keyboardType: keyboardType,
-            style: TextStyle(color: isDark ? Colors.white : AppTheme.textDark),
+            style: TextStyle(
+              color: isDark ? Colors.white : AppTheme.textDark,
+              fontSize: w * 0.038,
+            ),
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(
                 color: isDark 
                     ? Colors.white.withValues(alpha: 0.3) 
                     : AppTheme.textGray.withValues(alpha: 0.5),
+                fontSize: w * 0.038,
               ),
-              prefixIcon: Icon(icon, color: isDark ? Colors.white38 : AppTheme.primaryPurple.withValues(alpha: 0.5), size: 20),
+              prefixIcon: Icon(
+                icon, 
+                color: isDark ? Colors.white38 : AppTheme.primaryPurple.withValues(alpha: 0.5), 
+                size: w * 0.05,
+              ),
               suffixIcon: suffix,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+              contentPadding: EdgeInsets.symmetric(
+                vertical: h * 0.02, 
+                horizontal: w * 0.04
+              ),
             ),
           ),
         ),
+        if (errorText != null) ...[
+          SizedBox(height: h * 0.006),
+          Padding(
+            padding: EdgeInsets.only(left: w * 0.02),
+            child: Text(
+              errorText!,
+              style: TextStyle(
+                color: AppTheme.errorRed,
+                fontSize: w * 0.028,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

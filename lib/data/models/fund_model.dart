@@ -6,6 +6,7 @@ class FundModel extends Fund {
     required super.name,
     required super.minAmount,
     required super.category,
+    super.investedAmount,
   });
 
   factory FundModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,9 @@ class FundModel extends Fund {
       name: json['name'] as String,
       minAmount: (json['minAmount'] as num).toDouble(),
       category: json['category'] as String,
+      investedAmount: json['investedAmount'] != null 
+          ? (json['investedAmount'] as num).toDouble() 
+          : null,
     );
   }
 
@@ -23,6 +27,7 @@ class FundModel extends Fund {
       'name': name,
       'minAmount': minAmount,
       'category': category,
+      'investedAmount': investedAmount,
     };
   }
 }

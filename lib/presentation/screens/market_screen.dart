@@ -6,51 +6,66 @@ class MarketScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Scaffold(
       backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
-        title: const Text('Market', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Market', 
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: w * 0.05)
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
+          IconButton(
+            icon: Icon(Icons.search, size: w * 0.06), 
+            onPressed: () {}
+          ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(w * 0.06),
         children: [
-          _buildSectionHeader('Indices del Mercado'),
-          const SizedBox(height: 16),
-          _buildMarketCard('S&P 500', '+1.24%', '5,308.13', true),
-          _buildMarketCard('DOW JONES', '-0.32%', '38,852.27', false),
-          _buildMarketCard('NASDAQ', '+0.95%', '16,742.39', true),
-          _buildMarketCard('COLCAP', '+0.18%', '1,384.52', true),
-          const SizedBox(height: 24),
-          _buildSectionHeader('Fondos Populares'),
-          const SizedBox(height: 16),
-          _buildFundMarketCard('FPV_BTG_PACTUAL_RECAUDADORA', 'FPV', '+2.41%', '\$75,000 COP', true),
-          _buildFundMarketCard('FPV_BTG_PACTUAL_ECOPETROL', 'FPV', '+1.87%', '\$125,000 COP', true),
-          _buildFundMarketCard('DEUDAPRIVADA', 'FIC', '+0.92%', '\$50,000 COP', true),
-          _buildFundMarketCard('FDO-ACCIONES', 'FIC', '-0.43%', '\$250,000 COP', false),
-          _buildFundMarketCard('FPV_BTG_PACTUAL_DINAMICA', 'FPV', '+3.12%', '\$100,000 COP', true),
+          _buildSectionHeader(context, 'Indices del Mercado'),
+          SizedBox(height: h * 0.02),
+          _buildMarketCard(context, 'S&P 500', '+1.24%', '5,308.13', true),
+          _buildMarketCard(context, 'DOW JONES', '-0.32%', '38,852.27', false),
+          _buildMarketCard(context, 'NASDAQ', '+0.95%', '16,742.39', true),
+          _buildMarketCard(context, 'COLCAP', '+0.18%', '1,384.52', true),
+          SizedBox(height: h * 0.03),
+          _buildSectionHeader(context, 'Fondos Populares'),
+          SizedBox(height: h * 0.02),
+          _buildFundMarketCard(context, 'FPV_BTG_PACTUAL_RECAUDADORA', 'FPV', '+2.41%', '\$75,000 COP', true),
+          _buildFundMarketCard(context, 'FPV_BTG_PACTUAL_ECOPETROL', 'FPV', '+1.87%', '\$125,000 COP', true),
+          _buildFundMarketCard(context, 'DEUDAPRIVADA', 'FIC', '+0.92%', '\$50,000 COP', true),
+          _buildFundMarketCard(context, 'FDO-ACCIONES', 'FIC', '-0.43%', '\$250,000 COP', false),
+          _buildFundMarketCard(context, 'FPV_BTG_PACTUAL_DINAMICA', 'FPV', '+3.12%', '\$100,000 COP', true),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final w = MediaQuery.sizeOf(context).width;
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 18,
+      style: TextStyle(
+        fontSize: w * 0.045,
         fontWeight: FontWeight.bold,
         color: AppTheme.textDark,
       ),
     );
   }
 
-  Widget _buildMarketCard(String name, String change, String value, bool isUp) {
+  Widget _buildMarketCard(BuildContext context, String name, String change, String value, bool isUp) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: h * 0.015),
+      padding: EdgeInsets.all(w * 0.04),
       decoration: BoxDecoration(
         color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(16),
@@ -62,13 +77,26 @@ class MarketScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-              const SizedBox(height: 4),
-              Text(value, style: const TextStyle(color: AppTheme.textGray, fontSize: 13)),
+              Text(
+                name, 
+                style: TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  color: AppTheme.textDark,
+                  fontSize: w * 0.038
+                )
+              ),
+              SizedBox(height: h * 0.005),
+              Text(
+                value, 
+                style: TextStyle(
+                  color: AppTheme.textGray, 
+                  fontSize: w * 0.032
+                )
+              ),
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: w * 0.03, vertical: h * 0.008),
             decoration: BoxDecoration(
               color: (isUp ? AppTheme.successGreen : AppTheme.errorRed).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
@@ -78,6 +106,7 @@ class MarketScreen extends StatelessWidget {
               style: TextStyle(
                 color: isUp ? AppTheme.successGreen : AppTheme.errorRed,
                 fontWeight: FontWeight.bold,
+                fontSize: w * 0.032,
               ),
             ),
           ),
@@ -86,10 +115,14 @@ class MarketScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFundMarketCard(String name, String category, String change, String minAmount, bool isUp) {
+  Widget _buildFundMarketCard(BuildContext context, String name, String category, String change, String minAmount, bool isUp) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: h * 0.015),
+      padding: EdgeInsets.all(w * 0.04),
       decoration: BoxDecoration(
         color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(16),
@@ -98,30 +131,49 @@ class MarketScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: w * 0.11,
+            height: w * 0.11,
             decoration: BoxDecoration(
               color: AppTheme.primaryPurpleLight,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.insights, color: AppTheme.primaryPurple, size: 22),
+            child: Icon(Icons.insights, color: AppTheme.primaryPurple, size: w * 0.055),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: w * 0.03),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textDark, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 2),
+                Text(
+                  name, 
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    color: AppTheme.textDark, 
+                    fontSize: w * 0.032
+                  ), 
+                  maxLines: 1, 
+                  overflow: TextOverflow.ellipsis
+                ),
+                SizedBox(height: h * 0.003),
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                       decoration: BoxDecoration(color: AppTheme.primaryPurpleLight, borderRadius: BorderRadius.circular(4)),
-                      child: Text(category, style: const TextStyle(color: AppTheme.primaryPurple, fontSize: 10, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        category, 
+                        style: TextStyle(
+                          color: AppTheme.primaryPurple, 
+                          fontSize: w * 0.025, 
+                          fontWeight: FontWeight.bold
+                        )
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Text('Min: $minAmount', style: const TextStyle(color: AppTheme.textGray, fontSize: 11)),
+                    SizedBox(width: w * 0.02),
+                    Text(
+                      'Min: $minAmount', 
+                      style: TextStyle(color: AppTheme.textGray, fontSize: w * 0.028)
+                    ),
                   ],
                 ),
               ],
@@ -132,6 +184,7 @@ class MarketScreen extends StatelessWidget {
             style: TextStyle(
               color: isUp ? AppTheme.successGreen : AppTheme.errorRed,
               fontWeight: FontWeight.bold,
+              fontSize: w * 0.035,
             ),
           ),
         ],

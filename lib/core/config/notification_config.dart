@@ -25,7 +25,7 @@
 class NotificationConfig {
   // ── EmailJS ─────────────────────────────────────────────────────────────────
   static const String emailJsServiceId = 'service_xv0vmlc';
-  static const String emailJsTemplateId = 'template_81v269s';
+  static const String emailJsTemplateId = 'template_o7c0qoi';
   static const String emailJsPublicKey =
       'v1lwn8QvM1LfkPt8a'; // Llave pública configurada ✅
 

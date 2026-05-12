@@ -18,6 +18,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
     final provider = context.watch<FundProvider>();
 
     List<Transaction> filteredHistory = List.of(provider.historyList);
@@ -33,10 +36,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
-        title: const Text('Transaction History', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Transaction History', 
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: w * 0.05)
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_alt_outlined),
+            icon: Icon(Icons.filter_alt_outlined, size: w * 0.06),
             onPressed: () {},
           ),
         ],
@@ -46,14 +52,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
           // Tabs
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: EdgeInsets.symmetric(horizontal: w * 0.06, vertical: h * 0.02),
               child: Row(
                 children: [
-                  Expanded(child: _buildTab('All')),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildTab('Subscriptions')),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildTab('Cancellations')),
+                  Expanded(child: _buildTab(context, 'All')),
+                  SizedBox(width: w * 0.02),
+                  Expanded(child: _buildTab(context, 'Subs')),
+                  SizedBox(width: w * 0.02),
+                  Expanded(child: _buildTab(context, 'Cancels')),
                 ],
               ),
             ),
@@ -61,14 +67,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
           // Grouped List
           if (filteredHistory.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
-                child: Text('No transactions found.', style: TextStyle(color: AppTheme.textGray)),
+                child: Text(
+                  'No transactions found.', 
+                  style: TextStyle(color: AppTheme.textGray, fontSize: w * 0.038)
+                ),
               ),
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: w * 0.06),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -91,11 +100,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: [
                         if (showMonthHeader)
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            padding: EdgeInsets.symmetric(vertical: h * 0.02),
                             child: Text(
                               DateFormat('MMMM yyyy').format(transaction.date),
-                              style: const TextStyle(
-                                fontSize: 16,
+                              style: TextStyle(
+                                fontSize: w * 0.04,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textDark,
                               ),
@@ -114,16 +123,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildTab(String title) {
-    final isSelected = _selectedTab == title;
+  Widget _buildTab(BuildContext context, String title) {
+    final isSelected = _selectedTab.startsWith(title.substring(0, 3));
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedTab = title;
+          if (title == 'All') _selectedTab = 'All';
+          if (title == 'Subs') _selectedTab = 'Subscriptions';
+          if (title == 'Cancels') _selectedTab = 'Cancellations';
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: h * 0.012),
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
           color: isSelected ? null : AppTheme.surfaceWhite,
@@ -136,7 +151,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           style: TextStyle(
             color: isSelected ? Colors.white : AppTheme.textGray,
             fontWeight: FontWeight.bold,
-            fontSize: 12,
+            fontSize: w * 0.03,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

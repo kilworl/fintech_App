@@ -8,7 +8,7 @@ import '../theme/app_theme.dart';
 import 'common/finan_button.dart';
 import 'common/finan_text_field.dart';
 import 'common/notification_selector.dart';
-import 'success_overlay.dart';
+import 'finan_alert_overlay.dart';
 
 class CancellationSheet extends StatefulWidget {
   final Fund fund;
@@ -31,6 +31,9 @@ class _CancellationSheetState extends State<CancellationSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final h = size.height;
+    final w = size.width;
     final currencyFormatter = NumberFormat.currency(locale: 'es_CO', symbol: '\$', decimalDigits: 0);
 
     return Container(
@@ -38,55 +41,84 @@ class _CancellationSheetState extends State<CancellationSheet> {
         color: AppTheme.scaffoldBackground,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHandle(),
-          const SizedBox(height: 24),
-          const Text(
-            'Cancelar Suscripción',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.textDark),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Estás por retirar tus fondos de ${widget.fund.name}. El saldo de ${currencyFormatter.format(widget.fund.minAmount)} será devuelto a tu cuenta.',
-            style: const TextStyle(color: AppTheme.textGray, height: 1.5),
-          ),
-          const SizedBox(height: 32),
+      padding: EdgeInsets.symmetric(
+        horizontal: w * 0.06,
+        vertical: h * 0.02,
+      ),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHandle(),
+                SizedBox(height: h * 0.025),
+                Text(
+                  'Cancelar Suscripción',
+                  style: TextStyle(
+                    fontSize: w * 0.055, 
+                    fontWeight: FontWeight.bold, 
+                    color: AppTheme.textDark
+                  ),
+                ),
+                SizedBox(height: h * 0.01),
+                Text(
+                  'Estás por retirar tus fondos de ${widget.fund.name}. El saldo de ${currencyFormatter.format(widget.fund.investedAmount ?? widget.fund.minAmount)} será devuelto a tu cuenta.',
+                  style: TextStyle(
+                    fontSize: w * 0.038,
+                    color: AppTheme.textGray, 
+                    height: 1.5
+                  ),
+                ),
+                SizedBox(height: h * 0.035),
 
-          const Text(
-            'Notificar retiro por:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
-          ),
-          const SizedBox(height: 12),
-          NotificationSelector(
-            selectedMethod: _method,
-            onMethodChanged: (method) => setState(() {
-              _method = method;
-              _contactController.clear();
-            }),
-            activeColor: AppTheme.errorRed,
-          ),
-          const SizedBox(height: 16),
-          _buildDynamicContactField(),
-          const SizedBox(height: 40),
+                Text(
+                  'Notificar retiro por:',
+                  style: TextStyle(
+                    fontSize: w * 0.04, 
+                    fontWeight: FontWeight.bold, 
+                    color: AppTheme.textDark
+                  ),
+                ),
+                SizedBox(height: h * 0.012),
+                NotificationSelector(
+                  selectedMethod: _method,
+                  onMethodChanged: (method) => setState(() {
+                    _method = method;
+                    _contactController.clear();
+                  }),
+                  activeColor: AppTheme.errorRed,
+                ),
+                SizedBox(height: h * 0.018),
+                _buildDynamicContactField(),
+                SizedBox(height: h * 0.045),
 
-          FinanButton(
-            text: 'Confirmar Retiro',
-            onTap: _handleCancel,
-            isLoading: _isProcessing,
-            color: AppTheme.errorRed,
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Volver atrás', style: TextStyle(color: AppTheme.textGray)),
+                FinanButton(
+                  text: 'Confirmar Retiro',
+                  onTap: _handleCancel,
+                  isLoading: _isProcessing,
+                  color: AppTheme.errorRed,
+                ),
+                SizedBox(height: h * 0.015),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Volver atrás', 
+                      style: TextStyle(
+                        color: AppTheme.textGray,
+                        fontSize: w * 0.038
+                      )
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -146,7 +178,7 @@ class _CancellationSheetState extends State<CancellationSheet> {
 
     if (success) {
       nav.pop(); 
-      SuccessOverlay.show(
+      FinanAlertOverlay.show(
         context,
         title: 'Retiro Exitoso',
         subtitle: 'Tu dinero ha sido\ndevuelto al saldo',

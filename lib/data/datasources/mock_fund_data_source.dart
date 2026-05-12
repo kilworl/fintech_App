@@ -31,7 +31,7 @@ class MockFundDataSource {
     return _prefs.getDouble(_balanceKey) ?? _initialBalance;
   }
 
-  Future<void> _saveBalance(double value) => 
+  Future<void> saveBalance(double value) => 
       _prefs.setDouble(_balanceKey, value).then((_) {});
 
   // ── Subscribed funds (persisted as JSON array) ───────────────────────────────
@@ -86,54 +86,88 @@ class MockFundDataSource {
   // ── Mutations ───────────────────────────────────────────────────────────────
 
   Future<void> subscribeToFund(FundModel fund) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
 
-    // Update balance
-    final currentBalance = await getBalance();
-    await _saveBalance(currentBalance - fund.minAmount);
+      // Update balance
+      final currentBalance = await getBalance();
+      await saveBalance(currentBalance - fund.minAmount);
 
-    // Update subscribed list
-    final subscribed = _loadSubscribedFunds();
-    if (!subscribed.any((f) => f.id == fund.id)) {
-      subscribed.add(fund);
+      // Update subscribed list
+      final subscribed = _loadSubscribedFunds();
+      final existingIndex = subscribed.indexWhere((f) => f.id == fund.id);
+      
+      if (existingIndex != -1) {
+        // Increment existing investment
+        final existing = subscribed[existingIndex];
+        final newAmount = (existing.investedAmount ?? existing.minAmount) + fund.minAmount;
+        subscribed[existingIndex] = FundModel(
+          id: existing.id,
+          name: existing.name,
+          minAmount: existing.minAmount,
+          category: existing.category,
+          investedAmount: newAmount,
+        );
+      } else {
+        // First time subscription
+        subscribed.add(FundModel(
+          id: fund.id,
+          name: fund.name,
+          minAmount: fund.minAmount,
+          category: fund.category,
+          investedAmount: fund.minAmount,
+        ));
+      }
       await _saveSubscribedFunds(subscribed);
-    }
 
-    // Append transaction
-    final txs = _loadTransactions();
-    txs.add(TransactionModel(
-      id: '${DateTime.now().millisecondsSinceEpoch}${Random().nextInt(999)}',
-      type: TransactionType.subscribe,
-      date: DateTime.now(),
-      fundId: fund.id,
-      fundName: fund.name,
-      amount: fund.minAmount,
-    ));
-    await _saveTransactions(txs);
+      // Append transaction
+      final txs = _loadTransactions();
+      txs.add(TransactionModel(
+        id: '${DateTime.now().millisecondsSinceEpoch}${Random().nextInt(999)}',
+        type: TransactionType.subscribe,
+        date: DateTime.now(),
+        fundId: fund.id,
+        fundName: fund.name,
+        amount: fund.minAmount,
+      ));
+      await _saveTransactions(txs);
+    } catch (e) {
+      print('MOCK_API_ERROR (Subscribe): $e');
+      rethrow;
+    }
   }
 
   Future<void> cancelSubscription(FundModel fund) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
 
-    // Restore balance
-    final currentBalance = await getBalance();
-    await _saveBalance(currentBalance + fund.minAmount);
+      // Get the actual invested amount before removing
+      final subscribed = _loadSubscribedFunds();
+      final existing = subscribed.firstWhere((f) => f.id == fund.id);
+      final amountToRestore = existing.investedAmount ?? existing.minAmount;
 
-    // Remove from subscribed list
-    final subscribed = _loadSubscribedFunds();
-    subscribed.removeWhere((f) => f.id == fund.id);
-    await _saveSubscribedFunds(subscribed);
+      // Restore full balance
+      final currentBalance = await getBalance();
+      await saveBalance(currentBalance + amountToRestore);
 
-    // Append transaction
-    final txs = _loadTransactions();
-    txs.add(TransactionModel(
-      id: '${DateTime.now().millisecondsSinceEpoch}${Random().nextInt(999)}',
-      type: TransactionType.cancel,
-      date: DateTime.now(),
-      fundId: fund.id,
-      fundName: fund.name,
-      amount: fund.minAmount,
-    ));
-    await _saveTransactions(txs);
+      // Remove from subscribed list
+      subscribed.removeWhere((f) => f.id == fund.id);
+      await _saveSubscribedFunds(subscribed);
+
+      // Append transaction
+      final txs = _loadTransactions();
+      txs.add(TransactionModel(
+        id: '${DateTime.now().millisecondsSinceEpoch}${Random().nextInt(999)}',
+        type: TransactionType.cancel,
+        date: DateTime.now(),
+        fundId: fund.id,
+        fundName: fund.name,
+        amount: amountToRestore,
+      ));
+      await _saveTransactions(txs);
+    } catch (e) {
+      print('MOCK_API_ERROR (Cancel): $e');
+      rethrow;
+    }
   }
 }

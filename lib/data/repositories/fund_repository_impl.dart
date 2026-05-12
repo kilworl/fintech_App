@@ -17,8 +17,13 @@ class FundRepositoryImpl implements FundRepository {
 
   @override
   Future<UserBalance> getBalance() async {
-    final balance = await dataSource.getBalance();
-    return UserBalance(amount: balance);
+    final amount = await dataSource.getBalance();
+    return UserBalance(amount: amount);
+  }
+
+  @override
+  Future<void> updateBalance(double amount) async {
+    await dataSource.saveBalance(amount);
   }
 
   @override
@@ -38,6 +43,7 @@ class FundRepositoryImpl implements FundRepository {
       name: fund.name,
       minAmount: fund.minAmount,
       category: fund.category,
+      investedAmount: fund.investedAmount,
     );
     await dataSource.cancelSubscription(fundModel);
   }
@@ -49,6 +55,7 @@ class FundRepositoryImpl implements FundRepository {
       name: fund.name,
       minAmount: fund.minAmount,
       category: fund.category,
+      investedAmount: fund.investedAmount,
     );
     await dataSource.subscribeToFund(fundModel);
   }

@@ -17,14 +17,15 @@ class SubscribeToFund {
     try {
       final currentBalance = await repository.getBalance();
       if (currentBalance.amount < fund.minAmount) {
-        return failure(
-          'Saldo insuficiente. El mínimo para ${fund.name} es \$${fund.minAmount.toStringAsFixed(0)} COP. '
-          'Tu saldo actual es \$${currentBalance.amount.toStringAsFixed(0)} COP.',
-        );
+        final errorMsg = 'Saldo insuficiente. El mínimo para ${fund.name} es \$${fund.minAmount.toStringAsFixed(0)} COP. '
+            'Tu saldo actual es \$${currentBalance.amount.toStringAsFixed(0)} COP.';
+        print('API_ERROR (Subscribe): $errorMsg');
+        return failure(errorMsg);
       }
       await repository.subscribeToFund(fund);
       return success(null);
     } catch (e) {
+      print('API_EXCEPTION (Subscribe): $e');
       return failure('Error inesperado al suscribirse: $e');
     }
   }

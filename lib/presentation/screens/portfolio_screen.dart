@@ -1,34 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import '../providers/fund_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/fund_card.dart';
-import '../widgets/success_overlay.dart';
+import '../widgets/finan_alert_overlay.dart';
 import '../widgets/cancellation_sheet.dart';
+import '../widgets/common/finan_button.dart';
 import '../../domain/entities/fund.dart';
+import '../../core/navigation/app_router.dart';
 
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
     final provider = context.watch<FundProvider>();
     final currencyFormatter = NumberFormat.currency(locale: 'es_CO', symbol: '\$', decimalDigits: 0);
 
     // Calculate total invested and a mock return
-    double totalInvested = provider.portfolioList.fold(0, (sum, item) => sum + item.minAmount);
+    double totalInvested = provider.portfolioList.fold(0, (sum, item) => sum + (item.investedAmount ?? item.minAmount));
     double mockReturn = provider.portfolioList.isNotEmpty ? 12450.0 : 0.0;
     double returnPercentage = totalInvested > 0 ? (mockReturn / totalInvested) * 100 : 0.0;
 
     return Scaffold(
       backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
-        title: const Text('My Portfolio', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'My Portfolio', 
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: w * 0.05)
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.show_chart),
+            icon: Icon(Icons.show_chart, size: w * 0.06),
             onPressed: () {},
           ),
         ],
@@ -38,32 +47,32 @@ class PortfolioScreen extends StatelessWidget {
           // Header & Chart
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(w * 0.06),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Total Invested', style: TextStyle(color: AppTheme.textGray, fontSize: 14)),
-                      const SizedBox(height: 4),
+                      Text('Total Invested', style: TextStyle(color: AppTheme.textGray, fontSize: w * 0.035)),
+                      SizedBox(height: h * 0.005),
                       Text(
                         '${currencyFormatter.format(totalInvested)} COP',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                        style: TextStyle(fontSize: w * 0.055, fontWeight: FontWeight.bold, color: AppTheme.textDark),
                       ),
-                      const SizedBox(height: 16),
-                      const Text('Total Returns', style: TextStyle(color: AppTheme.textGray, fontSize: 14)),
-                      const SizedBox(height: 4),
+                      SizedBox(height: h * 0.02),
+                      Text('Total Returns', style: TextStyle(color: AppTheme.textGray, fontSize: w * 0.035)),
+                      SizedBox(height: h * 0.005),
                       Row(
                         children: [
                           Text(
                             '+${currencyFormatter.format(mockReturn)} COP',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.successGreen),
+                            style: TextStyle(fontSize: w * 0.045, fontWeight: FontWeight.bold, color: AppTheme.successGreen),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: w * 0.02),
                           Text(
                             '(${returnPercentage.toStringAsFixed(2)}%)',
-                            style: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold, fontSize: w * 0.038),
                           ),
                         ],
                       ),
@@ -71,11 +80,12 @@ class PortfolioScreen extends StatelessWidget {
                   ),
                   // Custom Donut Chart
                   SizedBox(
-                    width: 100,
-                    height: 100,
+                    width: w * 0.25,
+                    height: w * 0.25,
                     child: CustomPaint(
                       painter: DonutChartPainter(
                         hasData: provider.portfolioList.isNotEmpty,
+                        strokeWidth: w * 0.04,
                       ),
                     ),
                   ),
@@ -85,14 +95,17 @@ class PortfolioScreen extends StatelessWidget {
           ),
           
           if (provider.portfolioList.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
-                child: Text('No funds in your portfolio.', style: TextStyle(color: AppTheme.textGray)),
+                child: Text(
+                  'No funds in your portfolio.', 
+                  style: TextStyle(color: AppTheme.textGray, fontSize: w * 0.038)
+                ),
               ),
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: w * 0.06),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -100,9 +113,8 @@ class PortfolioScreen extends StatelessWidget {
                     return FundCard(
                       fund: fund,
                       isSubscribed: true,
-                      customSubtitle: 'Invested on May 28, 2024\n${currencyFormatter.format(fund.minAmount)} COP',
+                      customSubtitle: 'Invested on May 28, 2024\n${currencyFormatter.format(fund.investedAmount ?? fund.minAmount)} COP',
                       onTap: () {
-                        // Normally this would go to a details screen, for now we will show a dialog to cancel
                         _showCancelDialog(context, fund, provider);
                       },
                     );
@@ -115,18 +127,11 @@ class PortfolioScreen extends StatelessWidget {
           // Explore more button
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => DefaultTabController.of(context).animateTo(3),
-                  icon: const Icon(Icons.star_border),
-                  label: const Text('Explore more funds'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.darkBackground,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                ),
+              padding: EdgeInsets.all(w * 0.06),
+              child: FinanButton(
+                text: 'Explore more funds',
+                onTap: () => context.go(AppRouter.market),
+                color: AppTheme.darkBackground,
               ),
             ),
           ),
@@ -150,14 +155,14 @@ class PortfolioScreen extends StatelessWidget {
 
 class DonutChartPainter extends CustomPainter {
   final bool hasData;
+  final double strokeWidth;
 
-  DonutChartPainter({required this.hasData});
+  DonutChartPainter({required this.hasData, this.strokeWidth = 16.0});
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = math.min(size.width / 2, size.height / 2);
-    final strokeWidth = 16.0;
 
     final paint = Paint()
       ..style = PaintingStyle.stroke

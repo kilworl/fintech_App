@@ -32,25 +32,34 @@ class NotificationServiceImpl implements NotificationService {
       final formatter = NumberFormat.currency(locale: 'es_CO', symbol: '\$', decimalDigits: 0);
       final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(date);
 
+      final payload = {
+        'service_id': NotificationConfig.emailJsServiceId,
+        'template_id': NotificationConfig.emailJsTemplateId,
+        'user_id': NotificationConfig.emailJsPublicKey,
+        'template_params': {
+          'to_email': toEmail,
+          'to_name': toName,
+          'fund_name': fundName,
+          'amount': formatter.format(amount),
+          'action': action,
+          'date': dateStr,
+        },
+      };
+
+      print('NOTIFICATION_DEBUG: Sending Email via EmailJS...');
+      print('URL: $_emailJsUrl');
+      print('Payload: ${jsonEncode(payload)}');
+
       final response = await http
           .post(
             Uri.parse(_emailJsUrl),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'service_id': NotificationConfig.emailJsServiceId,
-              'template_id': NotificationConfig.emailJsTemplateId,
-              'user_id': NotificationConfig.emailJsPublicKey,
-              'template_params': {
-                'to_email': toEmail,
-                'to_name': toName,
-                'fund_name': fundName,
-                'amount': formatter.format(amount),
-                'action': action,
-                'date': dateStr,
-              },
-            }),
+            body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 10));
+
+      print('NOTIFICATION_DEBUG: EmailJS Response Status: ${response.statusCode}');
+      print('NOTIFICATION_DEBUG: EmailJS Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         return const NotificationResult(
@@ -58,12 +67,13 @@ class NotificationServiceImpl implements NotificationService {
           message: 'Email enviado exitosamente',
         );
       } else {
-        return NotificationResult(
+        return const NotificationResult(
           status: NotificationStatus.failed,
           message: 'El servicio de notificación por email no está disponible temporalmente.',
         );
       }
     } catch (e) {
+      print('NOTIFICATION_DEBUG: Email Exception: $e');
       return const NotificationResult(
         status: NotificationStatus.failed,
         message: 'No se pudo conectar con el servicio de correo. Intenta más tarde.',

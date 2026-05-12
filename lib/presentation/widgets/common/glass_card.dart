@@ -24,11 +24,15 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Container(
       width: width,
       height: height,
       margin: margin,
-      padding: padding,
+      padding: padding ?? EdgeInsets.all(w * 0.04),
       decoration: BoxDecoration(
         color: color ?? Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(borderRadius),

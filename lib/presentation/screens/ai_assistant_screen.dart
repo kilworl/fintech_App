@@ -62,25 +62,29 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final w = size.width;
+    final h = size.height;
+
     return Scaffold(
       backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(w * 0.02),
               decoration: BoxDecoration(
                 gradient: AppTheme.primaryGradient,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
+              child: Icon(Icons.auto_awesome, color: Colors.white, size: w * 0.04),
             ),
-            const SizedBox(width: 12),
-            const Column(
+            SizedBox(width: w * 0.03),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('FinBot AI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text('Asistente Financiero', style: TextStyle(fontSize: 11, color: AppTheme.textGray)),
+                Text('FinBot AI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: w * 0.04)),
+                Text('Asistente Financiero', style: TextStyle(fontSize: w * 0.028, color: AppTheme.textGray)),
               ],
             ),
           ],
@@ -92,14 +96,14 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(w * 0.06),
               itemCount: _messages.length + (_isTyping ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length) {
-                  return _buildTypingIndicator();
+                  return _buildTypingIndicator(context);
                 }
                 final msg = _messages[index];
-                return _buildMessage(msg['role']!, msg['text']!);
+                return _buildMessage(context, msg['role']!, msg['text']!);
               },
             ),
           ),
@@ -107,17 +111,17 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           // Suggestions
           if (_messages.length == 1)
             SizedBox(
-              height: 44,
+              height: h * 0.06,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: w * 0.06),
                 itemCount: _suggestions.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () => _sendMessage(_suggestions[index]['text']!),
                     child: Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      margin: EdgeInsets.only(right: w * 0.02),
+                      padding: EdgeInsets.symmetric(horizontal: w * 0.04, vertical: h * 0.012),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryPurpleLight,
                         borderRadius: BorderRadius.circular(20),
@@ -125,7 +129,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                       ),
                       child: Text(
                         _suggestions[index]['text']!,
-                        style: const TextStyle(color: AppTheme.primaryPurple, fontSize: 13, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: AppTheme.primaryPurple, fontSize: w * 0.032, fontWeight: FontWeight.w500),
                       ),
                     ),
                   );
@@ -133,11 +137,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               ),
             ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: h * 0.01),
 
           // Input
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            padding: EdgeInsets.fromLTRB(w * 0.04, h * 0.01, w * 0.04, h * 0.03),
             decoration: BoxDecoration(
               color: AppTheme.surfaceWhite,
               boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
@@ -147,27 +151,28 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
+                    style: TextStyle(fontSize: w * 0.035),
                     decoration: InputDecoration(
                       hintText: 'Escribe tu pregunta...',
-                      hintStyle: TextStyle(color: AppTheme.textGray.withValues(alpha: 0.7)),
+                      hintStyle: TextStyle(color: AppTheme.textGray.withValues(alpha: 0.7), fontSize: w * 0.035),
                       filled: true,
                       fillColor: AppTheme.scaffoldBackground,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(horizontal: w * 0.04, vertical: h * 0.015),
                     ),
                     onSubmitted: _sendMessage,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: w * 0.02),
                 GestureDetector(
                   onTap: () => _sendMessage(_messageController.text),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(w * 0.03),
                     decoration: BoxDecoration(gradient: AppTheme.primaryGradient, shape: BoxShape.circle),
-                    child: const Icon(Icons.send, color: Colors.white, size: 20),
+                    child: Icon(Icons.send, color: Colors.white, size: w * 0.05),
                   ),
                 ),
               ],
@@ -178,25 +183,26 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     );
   }
 
-  Widget _buildMessage(String role, String text) {
+  Widget _buildMessage(BuildContext context, String role, String text) {
+    final w = MediaQuery.sizeOf(context).width;
     final isAssistant = role == 'assistant';
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: w * 0.04),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: isAssistant ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
           if (isAssistant) ...[
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: EdgeInsets.all(w * 0.015),
               decoration: BoxDecoration(gradient: AppTheme.primaryGradient, shape: BoxShape.circle),
-              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 14),
+              child: Icon(Icons.auto_awesome, color: Colors.white, size: w * 0.035),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: w * 0.02),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(w * 0.04),
               decoration: BoxDecoration(
                 gradient: isAssistant ? null : AppTheme.primaryGradient,
                 color: isAssistant ? AppTheme.surfaceWhite : null,
@@ -213,6 +219,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 style: TextStyle(
                   color: isAssistant ? AppTheme.textDark : Colors.white,
                   height: 1.5,
+                  fontSize: w * 0.035,
                 ),
               ),
             ),
@@ -222,27 +229,28 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     );
   }
 
-  Widget _buildTypingIndicator() {
+  Widget _buildTypingIndicator(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: w * 0.04),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(w * 0.015),
             decoration: BoxDecoration(gradient: AppTheme.primaryGradient, shape: BoxShape.circle),
-            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 14),
+            child: Icon(Icons.auto_awesome, color: Colors.white, size: w * 0.035),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: w * 0.02),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: w * 0.04, vertical: w * 0.03),
             decoration: BoxDecoration(color: AppTheme.surfaceWhite, borderRadius: BorderRadius.circular(16)),
-            child: const Row(
+            child: Row(
               children: [
-                _PulsingDot(delay: 0),
-                SizedBox(width: 4),
-                _PulsingDot(delay: 200),
-                SizedBox(width: 4),
-                _PulsingDot(delay: 400),
+                _PulsingDot(delay: 0, size: w * 0.02),
+                SizedBox(width: w * 0.01),
+                _PulsingDot(delay: 200, size: w * 0.02),
+                SizedBox(width: w * 0.01),
+                _PulsingDot(delay: 400, size: w * 0.02),
               ],
             ),
           ),
@@ -254,7 +262,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
 
 class _PulsingDot extends StatefulWidget {
   final int delay;
-  const _PulsingDot({required this.delay});
+  final double size;
+  const _PulsingDot({required this.delay, required this.size});
 
   @override
   State<_PulsingDot> createState() => _PulsingDotState();
@@ -288,8 +297,8 @@ class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderState
     return FadeTransition(
       opacity: _animation,
       child: Container(
-        width: 8,
-        height: 8,
+        width: widget.size,
+        height: widget.size,
         decoration: const BoxDecoration(color: AppTheme.primaryPurple, shape: BoxShape.circle),
       ),
     );
